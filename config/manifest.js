@@ -30,7 +30,8 @@ const manifest = {
       },
       router: {
         stripTrailingSlash: true
-      }
+      },
+      state: {strictHeader: false},
     }
   ],
   registrations: [
