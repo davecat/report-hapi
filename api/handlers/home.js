@@ -9,7 +9,6 @@ module.exports.hello = {
             // var typea = results[0].type;
             var typea = 1;
             if (typea === 1) {
-                var ss = [3, 2, 4, -2];
                 let array = [];
                 let parray = [];
                 let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_application rla
@@ -69,9 +68,54 @@ module.exports.hello = {
 };
 
 module.exports.restricted = {
-    auth: 'jwt',
     handler: function (request, reply) {
-        return reply({result: 'Restricted!'});
+        let array = [];
+        let parray = [];
+        let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province FROM postlending_contract ca 
+                    WHERE
+                    DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                    GROUP BY ca.province`;
+        parray.push(new Promise(function (resolve, reject) {
+            connection.query(all, function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            array.push(results);
+        }).catch(function (error) {
+            console.error(error);
+        }));
+
+
+        Promise.all(parray).then(function (scuess) {
+            return reply(array);
+        });
+    }
+};
+
+module.exports.details = {
+    handler: function (request, reply) {
+        let dataObj = {};
+        let mapDetail = `SELECT * FROM postlending_contract pc
+                    WHERE
+                    pc.province = '${request.payload.province}'
+                    AND DATE(pc.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                    LIMIT ${request.payload.page},${request.payload.size}`;
+        let a = new Promise(function (resolve, reject) {
+            connection.query(mapDetail, function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+            });
+        });
+        a.then(function (item) {
+            let totalItems = `SELECT FOUND_ROWS() totalItems`;
+            connection.query(totalItems, function (error, results, fields) {
+                if (error) throw error;
+                dataObj.detail = item;
+                dataObj.totalItems = results[0].totalItems;
+                return reply(dataObj);
+            });
+        });
     }
 };
 
