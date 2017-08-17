@@ -14,7 +14,8 @@ module.exports.hello = {
                 let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_application rla
                             WHERE
                             DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
-                            GROUP BY DATE(rla.apply_date) HAVING rla.\`status\` NOT IN (0,1)`;
+                            AND rla.\`status\` NOT IN (0,1)
+                            GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
                     connection.query(all, function (error, results, fields) {
                         if (error) reject(error);
@@ -77,6 +78,21 @@ module.exports.restricted = {
                     GROUP BY ca.province`;
         parray.push(new Promise(function (resolve, reject) {
             connection.query(all, function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            array.push(results);
+        }).catch(function (error) {
+            console.error(error);
+        }));
+        //门店查询
+        let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM postlending_contract ca 
+                        WHERE
+                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                        GROUP BY ca.branch_id`;
+        parray.push(new Promise(function (resolve, reject) {
+            connection.query(store, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
