@@ -1,4 +1,5 @@
-const connection = require('./mysql.js')
+const connection = require('./mysql.js');
+const dateFns = require('date-fns');
 
 module.exports.hello = {
     handler: function (request, reply) {
@@ -22,7 +23,23 @@ module.exports.hello = {
                         resolve(results);
                     });
                 }).then(function (results) {
-                    array.push(results);
+                    //处理返回的数据
+                    let weekStart1 = dateFns.format(request.payload.startDay,'YYYY-MM-DD');
+                    let weekEnd1 = dateFns.format(request.payload.endDay,'YYYY-MM-DD');
+                    let myArray = [];
+                    let myMap = new Map();
+                    results.forEach(item => {
+                        myMap.set(dateFns.format(item.date,'YYYY-MM-DD'),item.amount)
+                    });
+                    while(weekStart1 < weekEnd1) {
+                        if(myMap.get(weekStart1) === undefined) {
+                            myArray.push(0);
+                        } else {
+                            myArray.push(myMap.get(weekStart1));
+                        }
+                        weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
+                    }
+                    array.push(myArray);
                 }).catch(function (error) {
                     console.error(error);
                 }));
@@ -38,7 +55,23 @@ module.exports.hello = {
                         resolve(results);
                     });
                 }).then(function (results) {
-                    array.push(results);
+                    //处理返回的数据
+                    let weekStart1 = dateFns.format(request.payload.startDay,'YYYY-MM-DD');
+                    let weekEnd1 = dateFns.format(request.payload.endDay,'YYYY-MM-DD');
+                    let myArray = [];
+                    let myMap = new Map();
+                    results.forEach(item => {
+                        myMap.set(dateFns.format(item.date,'YYYY-MM-DD'),item.amount)
+                    });
+                    while(weekStart1 < weekEnd1) {
+                        if(myMap.get(weekStart1) === undefined) {
+                            myArray.push(0);
+                        } else {
+                            myArray.push(myMap.get(weekStart1));
+                        }
+                        weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
+                    }
+                    array.push(myArray);
                 }).catch(function (error) {
                     console.error(error);
                 }));
@@ -54,7 +87,23 @@ module.exports.hello = {
                         resolve(results);
                     });
                 }).then(function (results) {
-                    array.push(results);
+                    //处理返回的数据
+                    let weekStart1 = dateFns.format(request.payload.startDay,'YYYY-MM-DD');
+                    let weekEnd1 = dateFns.format(request.payload.endDay,'YYYY-MM-DD');
+                    let myArray = [];
+                    let myMap = new Map();
+                    results.forEach(item => {
+                        myMap.set(dateFns.format(item.date,'YYYY-MM-DD'),item.amount)
+                    });
+                    while(weekStart1 < weekEnd1) {
+                        if(myMap.get(weekStart1) === undefined) {
+                            myArray.push(0);
+                        } else {
+                            myArray.push(myMap.get(weekStart1));
+                        }
+                        weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
+                    }
+                    array.push(myArray);
                 }).catch(function (error) {
                     console.error(error);
                 }));
