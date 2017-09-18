@@ -184,6 +184,75 @@ module.exports.details = {
     }
 };
 
+// 经纪人端报表
+//今日新增、本周新增、本月新增
+module.exports.agencyAmount = {
+    handler: function (request, reply) {
+        let dataObj = {};
+        let totalAmount = `SELECT SUM(ca.total_amount) AS totalAmount FROM \`counter_request\` ca
+                            WHERE ca.\`status\` IN(1,2,3,4,-2)
+                            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
+                            AND '${request.payload.endDay}'`;
+        let a = new Promise(function (resolve, reject) {
+            connection.query(totalAmount, function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+            });
+        });
+        a.then(function (item) {
+            let totalItems = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
+                    WHERE
+		            ca.\`status\` IN (1,2,3,4,-2)
+		            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
+                    AND '${request.payload.endDay}'`;
+            connection.query(totalItems, function (error, results, fields) {
+                if (error) throw error;
+                dataObj.totalAmount = item[0].totalAmount;
+                dataObj.billAmount = results[0].amount;
+                return reply(dataObj);
+            });
+        });
+    }
+};
+//申请总数
+module.exports.agencyTotalAmount = {
+    handler: function (request, reply) {
+        let dataObj = {};
+        let totalAmount = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
+                    WHERE ca.\`status\` IN (1,2,3,4,-2);`;
+        let a = new Promise(function (resolve, reject) {
+            connection.query(totalAmount, function (error, results, fields) {
+                if (error) reject(error);
+                resolve(results);
+            });
+        });
+        a.then(function (item) {
+            let totalItems = `SELECT count(ca.id) amount,ca.\`status\` FROM \`counter_request\` ca 
+                    WHERE
+		            ca.\`status\` IN (1,2,3,4,-2)
+                    GROUP BY ca.\`status\``;
+            connection.query(totalItems, function (error, results, fields) {
+                if (error) throw error;
+                dataObj.totalAmount = item[0].amount;
+                results.forEach(a => {
+                    //待审核
+                    if(a.status === 2) {
+                        dataObj.pendingAmount=a.amount
+                    } else {
+                        dataObj.pendingAmount=0
+                    }
+                    //审核不通过
+                    if(a.status === -2) {
+                        dataObj.notPendingAmount=a.amount
+                    } else {
+                        dataObj.pendingAmount=0
+                    }
+                });
+                return reply(dataObj);
+            });
+        });
+    }
+};
 module.exports.notFound = {
     handler: function (request, reply) {
         return reply({result: 'Oops, 404 Page!'}).code(404);
