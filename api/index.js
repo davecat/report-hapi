@@ -9,6 +9,8 @@ exports.register = (plugin, options, next) => {
         //新平台接口
         {method: 'POST', path: '/agency/getAmountByDate', config: Home.agencyAmount},
         {method: 'POST', path: '/agency/getTotalAmount', config: Home.agencyTotalAmount},
+        {method: 'POST', path: '/agency/getLine', config: Home.getLine},
+        {method: 'POST', path: '/agency/getMap', config: Home.getMap},
         {method: 'GET', path: '/{path*}', config: Home.notFound}
     ]);
 
