@@ -191,7 +191,7 @@ module.exports.agencyAmount = {
     handler: function (request, reply) {
         let dataObj = {};
         let totalAmount = `SELECT SUM(ca.total_amount) AS totalAmount FROM \`counter_request\` ca
-                            WHERE ca.\`status\` IN(1,2,3,4,-2)
+                            WHERE ca.\`status\` NOT IN(0,-1)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                             AND '${request.payload.endDay}'`;
         let a = new Promise(function (resolve, reject) {
@@ -203,7 +203,7 @@ module.exports.agencyAmount = {
         a.then(function (item) {
             let totalItems = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
                     WHERE
-		            ca.\`status\` IN (1,2,3,4,-2)
+		            ca.\`status\` NOT IN (0,-1)
 		            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                     AND '${request.payload.endDay}'`;
             connection.query(totalItems, function (error, results, fields) {
@@ -220,7 +220,7 @@ module.exports.agencyTotalAmount = {
     handler: function (request, reply) {
         let dataObj = {};
         let totalAmount = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
-                    WHERE ca.\`status\` IN (1,2,3,4,-2);`;
+                    WHERE ca.\`status\` NOT IN (0,-1);`;
         let a = new Promise(function (resolve, reject) {
             connection.query(totalAmount, function (error, results, fields) {
                 if (error) reject(error);
@@ -230,7 +230,7 @@ module.exports.agencyTotalAmount = {
         a.then(function (item) {
             let totalItems = `SELECT count(ca.id) amount,ca.\`status\` FROM \`counter_request\` ca 
                     WHERE
-		            ca.\`status\` IN (1,2,3,4,-2)
+		            ca.\`status\` NOT IN (0,-1)
                     GROUP BY ca.\`status\``;
             connection.query(totalItems, function (error, results, fields) {
                 if (error) throw error;
@@ -269,7 +269,7 @@ module.exports.getLine = {
                 let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_request rla
                             WHERE
                             DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
-                            AND rla.\`status\` IN (1,2,3,4,-2)
+                            AND rla.\`status\` NOT IN (0,-1)
                             GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
                     connection.query(all, function (error, results, fields) {
@@ -300,7 +300,7 @@ module.exports.getLine = {
                 //审批通过
                 let accep = `SELECT count(rla.id) amount,DATE(rla.apply_date) date FROM counter_request rla
                                 WHERE
-                                rla.\`status\` = 2
+                                rla.\`status\` >= 10
                                 AND DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                                 GROUP BY DATE(rla.apply_date);`;
                 parray.push(new Promise(function (resolve, reject) {
