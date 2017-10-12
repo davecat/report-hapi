@@ -11,7 +11,9 @@ exports.register = (plugin, options, next) => {
         {method: 'POST', path: '/agency/getTotalAmount', config: Home.agencyTotalAmount},
         {method: 'POST', path: '/agency/getLine', config: Home.getLine},
         {method: 'POST', path: '/agency/getMap', config: Home.getMap},
-        {method: 'GET', path: '/{path*}', config: Home.notFound}
+        {method: 'GET', path: '/{path*}', config: Home.notFound},
+        //APP
+        {method: 'POST', path: '/app/getAmountByDate', config: Home.appAmount}
     ]);
 
     next();

@@ -413,6 +413,23 @@ module.exports.getMap = {
 };
 
 
+//APP报表
+//今日新增、本周新增、本月新增
+module.exports.appAmount = {
+    handler: function (request, reply) {
+        let dataObj = {};
+        let totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
+                            WHERE ca.\`status\` NOT IN(0,-1)
+                            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                            AND ca.agent_id = '${request.payload.agentId}'`;
+        connection.query(totalItems, function (error, results, fields) {
+            if (error) throw error;
+            console.log(results);
+            return reply(dataObj);
+        });
+    }
+};
+
 
 
 module.exports.notFound = {
