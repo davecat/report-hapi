@@ -1,4 +1,4 @@
-const connection = require('./mysql.js');
+const mysql = require('./mysql.js');
 const oldConnection = require('./mysql.js');
 const dateFns = require('date-fns');
 
@@ -195,7 +195,7 @@ module.exports.agencyAmount = {
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                             AND '${request.payload.endDay}'`;
         let a = new Promise(function (resolve, reject) {
-            connection.query(totalAmount, function (error, results, fields) {
+            mysql.management.query(totalAmount, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -206,7 +206,7 @@ module.exports.agencyAmount = {
 		            ca.\`status\` NOT IN (0,-1)
 		            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                     AND '${request.payload.endDay}'`;
-            connection.query(totalItems, function (error, results, fields) {
+            mysql.management.query(totalItems, function (error, results, fields) {
                 if (error) throw error;
                 dataObj.totalAmount = item[0].totalAmount;
                 dataObj.billAmount = results[0].amount;
@@ -222,7 +222,7 @@ module.exports.agencyTotalAmount = {
         let totalAmount = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
                     WHERE ca.\`status\` NOT IN (0,-1);`;
         let a = new Promise(function (resolve, reject) {
-            connection.query(totalAmount, function (error, results, fields) {
+            mysql.management.query(totalAmount, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -232,7 +232,7 @@ module.exports.agencyTotalAmount = {
                     WHERE
 		            ca.\`status\` NOT IN (0,-1)
                     GROUP BY ca.\`status\``;
-            connection.query(totalItems, function (error, results, fields) {
+            mysql.management.query(totalItems, function (error, results, fields) {
                 if (error) throw error;
                 dataObj.totalAmount = item[0].amount;
                 results.forEach(a => {
@@ -260,7 +260,7 @@ module.exports.getLine = {
         // 判断用户类型
 
         let staffType = `SELECT cs.type type FROM counter_staff cs WHERE cs.id = '${request.payload.id}'`;
-        connection.query(staffType, function (error, results, fields) {
+        mysql.management.query(staffType, function (error, results, fields) {
             // var typea = results[0].type;
             var typea = 1;
             if (typea === 1) {
@@ -272,7 +272,7 @@ module.exports.getLine = {
                             AND rla.\`status\` NOT IN (0,-1)
                             GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
-                    connection.query(all, function (error, results, fields) {
+                    mysql.management.query(all, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -304,7 +304,7 @@ module.exports.getLine = {
                                 AND DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                                 GROUP BY DATE(rla.apply_date);`;
                 parray.push(new Promise(function (resolve, reject) {
-                    connection.query(accep, function (error, results, fields) {
+                    mysql.management.query(accep, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -336,7 +336,7 @@ module.exports.getLine = {
                                     AND DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                                     GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
-                    connection.query(notaccep, function (error, results, fields) {
+                    mysql.management.query(notaccep, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -380,7 +380,7 @@ module.exports.getMap = {
                     DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                     GROUP BY ca.province`;
         parray.push(new Promise(function (resolve, reject) {
-            connection.query(all, function (error, results, fields) {
+            mysql.management.query(all, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -395,7 +395,7 @@ module.exports.getMap = {
                         DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                         GROUP BY ca.branch_id`;
         parray.push(new Promise(function (resolve, reject) {
-            connection.query(store, function (error, results, fields) {
+            mysql.management.query(store, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -417,15 +417,13 @@ module.exports.getMap = {
 //今日新增、本周新增、本月新增
 module.exports.appAmount = {
     handler: function (request, reply) {
-        let dataObj = {};
         let totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
                             WHERE ca.\`status\` NOT IN(0,-1)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                             AND ca.agent_id = '${request.payload.agentId}'`;
-        connection.query(totalItems, function (error, results, fields) {
+        mysql.management.query(totalItems, function (error, results, fields) {
             if (error) throw error;
-            console.log(results);
-            return reply(dataObj);
+            return reply(results[0]);
         });
     }
 };
