@@ -417,10 +417,23 @@ module.exports.getMap = {
 //今日新增、本周新增、本月新增
 module.exports.appAmount = {
     handler: function (request, reply) {
-        let totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
+        let totalItems;
+        if(request.payload.branchId.length > 0) {
+            let str = '';
+            request.payload.branchId.forEach(function (item) {
+                str += `'${item}',`
+            });
+            str = str.substr(0,str.length-1);
+            totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
+                            WHERE ca.\`status\` NOT IN(0,-1)
+                            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                            AND ca.branch_id in (${str})`;
+        } else {
+            totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
                             WHERE ca.\`status\` NOT IN(0,-1)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                             AND ca.agent_id = '${request.payload.agentId}'`;
+        }
         mysql.management.query(totalItems, function (error, results, fields) {
             if (error) throw error;
             return reply(results[0]);
