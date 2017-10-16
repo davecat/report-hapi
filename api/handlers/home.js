@@ -1,5 +1,4 @@
 const mysql = require('./mysql.js');
-const oldConnection = require('./mysql.js');
 const dateFns = require('date-fns');
 
 module.exports.hello = {
@@ -7,7 +6,7 @@ module.exports.hello = {
         // 判断用户类型
 
         let staffType = `SELECT cs.type type FROM counter_staff cs WHERE cs.id = '${request.payload.id}'`;
-        oldConnection.query(staffType, function (error, results, fields) {
+        mysql.vkits.query(staffType, function (error, results, fields) {
             // var typea = results[0].type;
             var typea = 1;
             if (typea === 1) {
@@ -19,7 +18,7 @@ module.exports.hello = {
                             AND rla.\`status\` NOT IN (0,1)
                             GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
-                    oldConnection.query(all, function (error, results, fields) {
+                    mysql.vkits.query(all, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -51,7 +50,7 @@ module.exports.hello = {
                                 AND DATE(rla.eod_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                                 GROUP BY DATE(rla.eod_date);`;
                 parray.push(new Promise(function (resolve, reject) {
-                    oldConnection.query(accep, function (error, results, fields) {
+                    mysql.vkits.query(accep, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -83,7 +82,7 @@ module.exports.hello = {
                                     AND DATE(rla.lib_approval_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                                     GROUP BY DATE(rla.lib_approval_date)`;
                 parray.push(new Promise(function (resolve, reject) {
-                    oldConnection.query(notaccep, function (error, results, fields) {
+                    mysql.vkits.query(notaccep, function (error, results, fields) {
                         if (error) reject(error);
                         resolve(results);
                     });
@@ -127,7 +126,7 @@ module.exports.restricted = {
                     DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                     GROUP BY ca.province`;
         parray.push(new Promise(function (resolve, reject) {
-            oldConnection.query(all, function (error, results, fields) {
+            mysql.vkits.query(all, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -142,7 +141,7 @@ module.exports.restricted = {
                         DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                         GROUP BY ca.branch_id`;
         parray.push(new Promise(function (resolve, reject) {
-            oldConnection.query(store, function (error, results, fields) {
+            mysql.vkits.query(store, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
@@ -168,14 +167,14 @@ module.exports.details = {
                     AND DATE(pc.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                     LIMIT ${request.payload.page},${request.payload.size}`;
         let a = new Promise(function (resolve, reject) {
-            oldConnection.query(mapDetail, function (error, results, fields) {
+            mysql.vkits.query(mapDetail, function (error, results, fields) {
                 if (error) reject(error);
                 resolve(results);
             });
         });
         a.then(function (item) {
             let totalItems = `SELECT FOUND_ROWS() totalItems`;
-            oldConnection.query(totalItems, function (error, results, fields) {
+            mysql.vkits.query(totalItems, function (error, results, fields) {
                 if (error) throw error;
                 dataObj.detail = item;
                 dataObj.totalItems = results[0].totalItems;
