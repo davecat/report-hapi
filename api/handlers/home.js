@@ -376,7 +376,8 @@ module.exports.getMap = {
         let parray = [];
         let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province FROM counter_request ca 
                     WHERE
-                    DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                    DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
+                    ca.\`status\` NOT IN(0,-1,1,-2)
                     GROUP BY ca.province`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(all, function (error, results, fields) {
@@ -391,7 +392,8 @@ module.exports.getMap = {
         //门店查询
         let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM counter_request ca 
                         WHERE
-                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
+                        ca.\`status\` NOT IN(0,-1,1,-2)
                         GROUP BY ca.branch_id`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(store, function (error, results, fields) {
