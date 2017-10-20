@@ -12,7 +12,7 @@ module.exports.hello = {
             if (typea === 1) {
                 let array = [];
                 let parray = [];
-                let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_application rla
+                let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM riskcontrol_lib_application rla
                             WHERE
                             DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                             AND rla.\`status\` NOT IN (0,1)
