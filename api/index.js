@@ -13,7 +13,8 @@ exports.register = (plugin, options, next) => {
         {method: 'POST', path: '/agency/getMap', config: Home.getMap},
         {method: 'GET', path: '/{path*}', config: Home.notFound},
         //APP
-        {method: 'POST', path: '/app/getAmountByDate', config: Home.appAmount}
+        {method: 'POST', path: '/app/getAmountByDate', config: Home.appAmount},
+        {method: 'POST', path: '/app/getVersion', config: Home.appVersion}
     ]);
 
     next();

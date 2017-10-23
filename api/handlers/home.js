@@ -441,6 +441,16 @@ module.exports.appAmount = {
         });
     }
 };
+//获取版本号
+module.exports.appVersion = {
+    handler: function (request, reply) {
+        if(request.payload.appKey >= 100) {
+            return reply({versionNo: 'http://testbk.wezebra.com/'});
+        } else {
+            return reply({versionNo: 'https://a.libfintech.com/'});
+        }
+    }
+};
 
 
 
