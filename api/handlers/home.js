@@ -504,7 +504,7 @@ module.exports.getTotalAmountByDate = {
 			'%w'
 		)
 	) - 1
-	) AS starDate,
+	) AS startDate,
 	DATE_ADD(
 	subdate(
 		DATE_FORMAT(created_date, '%Y-%m-%d'),
