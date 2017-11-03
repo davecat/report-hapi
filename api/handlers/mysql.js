@@ -33,10 +33,10 @@ module.exports.management = function handleDisconnect() {
 //老平台数据源
 module.exports.vkits = function handleDisconnect1() {
     var oldConnection = mysql.createConnection({
-        host: '192.168.0.99',
-        user: 'admin',
-        password: '123456',
-        database: 'base2'
+        host: 'rm-2ze0v70uggy83t5ago.mysql.rds.aliyuncs.com',
+        user: 'lib',
+        password: 'lib88888',
+        database: 'test'
     }); // Recreate the connection, since
     // the old one cannot be reused.
 
@@ -83,3 +83,8 @@ module.exports.guozheng = function connectguozheng() {
     });
     return oldConnection;
 }();
+/**
+ * 快速配置APP版本在这里~
+ * @type {string}
+ */
+module.exports.APPVERSION = 101;
