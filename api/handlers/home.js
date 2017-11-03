@@ -483,7 +483,7 @@ module.exports.getTotalAmountByDate = {
         let datasub=dateFns.differenceInDays(request.payload.enddate,request.payload.startdate);
         if(datasub <= 31){
              sql = `SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber,DATE_FORMAT(created_date,'%Y-%m-%d') as startDate from datacleansing_data_warehouse
-             where  status not in(-1,-2,19) AND  created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59' GROUP BY DATE_FORMAT(created_date,'%Y-%m-%d') 
+             where  status not in(0,-1,-2,19) AND  created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59' GROUP BY DATE_FORMAT(created_date,'%Y-%m-%d') 
              ORDER BY  DATE_FORMAT(created_date,'%Y-%m-%d')`;
 
              object.flag='days';
@@ -525,7 +525,7 @@ module.exports.getTotalAmountByDate = {
 	) AS  endDate
 FROM
 	datacleansing_data_warehouse
-WHERE  status not in(-1,-2,19) AND
+WHERE  status not in(0,-1,-2,19) AND
 	created_date BETWEEN '${request.payload.startdate}'
 AND ' ${request.payload.enddate} 23:59:59'
 GROUP BY
@@ -538,7 +538,7 @@ GROUP BY
 	CONCAT(DATE_FORMAT(created_date, '%Y-%m'),'-','01') AS startDate
 FROM
 	datacleansing_data_warehouse
-WHERE status not in(-1,-2,19) AND
+WHERE status not in(0,-1,-2,19) AND
 	created_date BETWEEN '${request.payload.startdate} '
 AND ' ${request.payload.enddate} 23:59:59'
 GROUP BY
@@ -559,7 +559,7 @@ GROUP BY
 
 
         let sql1=`SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber FROM datacleansing_data_warehouse WHERE
-	status not in(-1,-2,19) AND created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59'`;
+	status not in(0,-1,-2,19) AND created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59'`;
 
         parray.push(new Promise(function (resolve,reject) {
             mysql.guozheng.query(sql1, function (error, results, fields) {
@@ -583,7 +583,7 @@ GROUP BY
 				SELECT
 				count(c.application_no)
 				FROM
-					datacleansing_data_warehouse c WHERE c.status not in(-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
+					datacleansing_data_warehouse c WHERE c.status not in(0,-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
 AND ' ${request.payload.enddate} 23:59:59'
 			),
 			2
@@ -593,7 +593,7 @@ AND ' ${request.payload.enddate} 23:59:59'
 FROM
 	datacleansing_data_warehouse a
 WHERE
- a.status not in(-1,-2,19) AND
+ a.status not in(0,-1,-2,19) AND
   a.created_date BETWEEN '${request.payload.startdate} '
 AND ' ${request.payload.enddate} 23:59:59'
 GROUP BY
@@ -621,7 +621,7 @@ ORDER BY
 				SELECT
 				count(c.application_no)
 				FROM
-					datacleansing_data_warehouse c WHERE a.status not in(-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
+					datacleansing_data_warehouse c WHERE a.status not in(0,-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
 AND ' ${request.payload.enddate} 23:59:59'
 			),
 			2
@@ -631,7 +631,7 @@ AND ' ${request.payload.enddate} 23:59:59'
 FROM
 	datacleansing_data_warehouse a
 WHERE
-    a.status not in(-1,-2,19) AND
+    a.status not in(0,-1,-2,19) AND
   a.created_date BETWEEN '${request.payload.startdate} '
 AND ' ${request.payload.enddate} 23:59:59'
 GROUP BY
