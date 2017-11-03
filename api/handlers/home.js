@@ -190,7 +190,7 @@ module.exports.agencyAmount = {
     handler: function (request, reply) {
         let dataObj = {};
         let totalAmount = `SELECT SUM(ca.total_amount) AS totalAmount FROM \`counter_request\` ca
-                            WHERE ca.\`status\` NOT IN(0,-1)
+                            WHERE ca.\`status\` NOT IN(0,-1,-2,19)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                             AND '${request.payload.endDay}'`;
         let a = new Promise(function (resolve, reject) {
@@ -202,7 +202,7 @@ module.exports.agencyAmount = {
         a.then(function (item) {
             let totalItems = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
                     WHERE
-		            ca.\`status\` NOT IN (0,-1)
+		            ca.\`status\` NOT IN (0,-1,-2,19)
 		            AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}'
                     AND '${request.payload.endDay}'`;
             mysql.management.query(totalItems, function (error, results, fields) {
@@ -219,7 +219,7 @@ module.exports.agencyTotalAmount = {
     handler: function (request, reply) {
         let dataObj = {};
         let totalAmount = `SELECT count(ca.id) amount FROM \`counter_request\` ca 
-                    WHERE ca.\`status\` NOT IN (0,-1);`;
+                    WHERE ca.\`status\` NOT IN (0,-1,-2,19);`;
         let a = new Promise(function (resolve, reject) {
             mysql.management.query(totalAmount, function (error, results, fields) {
                 if (error) reject(error);
@@ -229,7 +229,7 @@ module.exports.agencyTotalAmount = {
         a.then(function (item) {
             let totalItems = `SELECT count(ca.id) amount,ca.\`status\` FROM \`counter_request\` ca 
                     WHERE
-		            ca.\`status\` NOT IN (0,-1)
+		            ca.\`status\` NOT IN (0,-1,-2,19)
                     GROUP BY ca.\`status\``;
             mysql.management.query(totalItems, function (error, results, fields) {
                 if (error) throw error;
@@ -268,7 +268,7 @@ module.exports.getLine = {
                 let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_request rla
                             WHERE
                             DATE(rla.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
-                            AND rla.\`status\` NOT IN (0,-1)
+                            AND rla.\`status\` NOT IN (0,-1,-2,19)
                             GROUP BY DATE(rla.apply_date)`;
                 parray.push(new Promise(function (resolve, reject) {
                     mysql.management.query(all, function (error, results, fields) {
@@ -377,7 +377,7 @@ module.exports.getMap = {
         let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province FROM counter_request ca 
                     WHERE
                     DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
-                    ca.\`status\` NOT IN(0,-1,1,-2)
+                    ca.\`status\` NOT IN(0,-1,1,-2,19)
                     GROUP BY ca.province`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(all, function (error, results, fields) {
@@ -393,7 +393,7 @@ module.exports.getMap = {
         let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM counter_request ca 
                         WHERE
                         DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
-                        ca.\`status\` NOT IN(0,-1,1,-2)
+                        ca.\`status\` NOT IN(0,-1,1,-2,19)
                         GROUP BY ca.branch_id`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(store, function (error, results, fields) {
@@ -426,12 +426,12 @@ module.exports.appAmount = {
             });
             str = str.substr(0,str.length-1);
             totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
-                            WHERE ca.\`status\` NOT IN(0,-1)
+                            WHERE ca.\`status\` NOT IN(0,-1,-2,19)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                             AND ca.branch_id in (${str})`;
         } else {
             totalItems = `SELECT SUM(ca.total_amount) AS totalAmount,count(ca.id) AS amount FROM \`counter_request\` ca
-                            WHERE ca.\`status\` NOT IN(0,-1)
+                            WHERE ca.\`status\` NOT IN(0,-1,-2,19)
                             AND DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                             AND ca.agent_id = '${request.payload.agentId}'`;
         }
