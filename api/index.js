@@ -14,7 +14,8 @@ exports.register = (plugin, options, next) => {
         {method: 'GET', path: '/{path*}', config: Home.notFound},
         //APP
         {method: 'POST', path: '/app/getAmountByDate', config: Home.appAmount},
-        {method: 'POST', path: '/app/getVersion', config: Home.appVersion}
+        {method: 'POST', path: '/app/getVersion', config: Home.appVersion},
+        {method: 'POST', path: '/app/getTotalAmountByDate', config:Home.getTotalAmountByDate}
     ]);
 
     next();

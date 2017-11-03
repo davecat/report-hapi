@@ -1,6 +1,6 @@
 const mysql = require('./mysql.js');
 const dateFns = require('date-fns');
-
+const citys = require('../../static/city.json');
 module.exports.hello = {
     handler: function (request, reply) {
         // 判断用户类型
@@ -459,3 +459,202 @@ module.exports.notFound = {
         return reply({result: 'Oops, 404 Page!'}).code(404);
     }
 };
+
+/**
+ * guozheng 报表 app
+ * @type {{handler: exports.getTotalAmountByDate.handler}}
+ */
+module.exports.getTotalAmountByDate = {
+    handler: function (request, reply) {
+
+        //console.log(citys);
+
+        let parray = [];
+        let object={
+            totalAccount:'',
+            totalAccountAndbillTotal:'',
+            orderbycity:'',
+            orderbybranch:'',
+            flag:''
+        };
+        // const startDate = new Date(2017, 3, 27); // (April 27, 2017)
+        // const endDate = new Date(2018, 3, 27); // (April 27, 2018)
+        let sql;
+        let datasub=dateFns.differenceInDays(request.payload.enddate,request.payload.startdate);
+        if(datasub <= 31){
+             sql = `SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber,DATE_FORMAT(created_date,'%Y-%m-%d') as startDate from datacleansing_data_warehouse
+             where  status not in(-1,-2,19) AND  created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59' GROUP BY DATE_FORMAT(created_date,'%Y-%m-%d') 
+             ORDER BY  DATE_FORMAT(created_date,'%Y-%m-%d')`;
+
+             object.flag='days';
+        }else if(datasub <= 80){
+            sql = `SELECT sum(total_amount) AS totalAmount,
+	count(application_no) as orderNumber,
+	subdate(
+		DATE_FORMAT(created_date, '%Y-%m-%d'),
+
+	IF (
+		date_format(
+			DATE_FORMAT(created_date, '%Y-%m-%d'),
+			'%w'
+		) = 0,
+		7,
+		date_format(
+			DATE_FORMAT(created_date, '%Y-%m-%d'),
+			'%w'
+		)
+	) - 1
+	) AS starDate,
+	DATE_ADD(
+	subdate(
+		DATE_FORMAT(created_date, '%Y-%m-%d'),
+
+	IF (
+		date_format(
+			DATE_FORMAT(created_date, '%Y-%m-%d'),
+			'%w'
+		) = 0,
+		7,
+		date_format(
+			DATE_FORMAT(created_date, '%Y-%m-%d'),
+			'%w'
+		)
+	) - 1
+	),
+		INTERVAL 6 DAY
+	) AS  endDate
+FROM
+	datacleansing_data_warehouse
+WHERE  status not in(-1,-2,19) AND
+	created_date BETWEEN '${request.payload.startdate}'
+AND ' ${request.payload.enddate} 23:59:59'
+GROUP BY
+	DATE_FORMAT(created_date, '%Y%u') ORDER BY DATE_FORMAT(created_date, '%Y%u')`;
+            object.flag='weeks';
+        }else {
+            sql = `SELECT
+	sum(total_amount) AS totalAmount,
+	count(application_no) as orderNumber,
+	CONCAT(DATE_FORMAT(created_date, '%Y-%m'),'-','01') AS startDate
+FROM
+	datacleansing_data_warehouse
+WHERE status not in(-1,-2,19) AND
+	created_date BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate} 23:59:59'
+GROUP BY
+	DATE_FORMAT(created_date, '%Y%M') ORDER BY DATE_FORMAT(created_date, '%Y-%m')`;
+            object.flag = 'months';
+        }
+
+        parray.push(new Promise(function (resolve,reject) {
+            mysql.guozheng.query(sql, function (error, results, fields) {
+                if (error) throw reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            object.totalAccount=results;
+        }).catch(function (error) {
+            console.log(error)
+        }));
+
+
+        let sql1=`SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber FROM datacleansing_data_warehouse WHERE
+	status not in(-1,-2,19) AND created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59'`;
+
+        parray.push(new Promise(function (resolve,reject) {
+            mysql.guozheng.query(sql1, function (error, results, fields) {
+                if (error) throw reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            object.totalAccountAndbillTotal=results;
+        }).catch(function (error) {
+            console.log(error)
+        }));
+
+
+        let sql2=`SELECT
+	a.branch_city AS name,
+	sum(a.total_amount) AS totalAmount,
+	count(a.application_no) AS orderNumber,
+	CONCAT(
+		ROUND(
+			count(a.application_no)* 100 / (
+				SELECT
+				count(c.application_no)
+				FROM
+					datacleansing_data_warehouse c WHERE c.status not in(-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate} 23:59:59'
+			),
+			2
+		),
+		'%'
+	) AS percentage
+FROM
+	datacleansing_data_warehouse a
+WHERE
+ a.status not in(-1,-2,19) AND
+  a.created_date BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate} 23:59:59'
+GROUP BY
+	a.branch_city
+ORDER BY
+ orderNumber desc`;
+        parray.push(new Promise(function (resolve,reject) {
+            mysql.guozheng.query(sql2, function (error, results, fields) {
+                if (error) throw reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            object.orderbycity=results;
+        }).catch(function (error) {
+            console.log(error)
+        }));
+
+        let sql3=`SELECT
+	a.branch_name AS name,
+	sum(a.total_amount) AS totalAmount,
+	count(a.application_no) AS orderNumber,
+	CONCAT(
+		ROUND(
+			count(a.application_no)* 100 / (
+				SELECT
+				count(c.application_no)
+				FROM
+					datacleansing_data_warehouse c WHERE a.status not in(-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate} 23:59:59'
+			),
+			2
+		),
+		'%'
+	) AS percentage
+FROM
+	datacleansing_data_warehouse a
+WHERE
+    a.status not in(-1,-2,19) AND
+  a.created_date BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate} 23:59:59'
+GROUP BY
+	a.branch_name
+ORDER BY
+ orderNumber desc`;
+        parray.push(new Promise(function (resolve,reject) {
+            mysql.guozheng.query(sql3, function (error, results, fields) {
+                if (error) throw reject(error);
+                resolve(results);
+            });
+        }).then(function (results) {
+            object.orderbybranch=results;
+        }).catch(function (error) {
+            console.log(error)
+        }));
+
+        Promise.all(parray).then(function (scuess) {
+            return reply(object);
+        });
+    }
+};
+
+module.exports.ss = {
+
+}
