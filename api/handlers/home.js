@@ -374,11 +374,11 @@ module.exports.getMap = {
     handler: function (request, reply) {
         let array = [];
         let parray = [];
-        let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province FROM counter_request ca 
+        let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,b.province FROM counter_request ca,counter_branch b 
                     WHERE
                     DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
-                    ca.\`status\` NOT IN(0,-1,1,-2,19)
-                    GROUP BY ca.province`;
+                    ca.status NOT IN(0,-1,-2,19) AND ca.branch_id = b.id
+                    GROUP BY b.province ORDER BY value desc;`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(all, function (error, results, fields) {
                 if (error) reject(error);
@@ -390,11 +390,11 @@ module.exports.getMap = {
             console.error(error);
         }));
         //门店查询
-        let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM counter_request ca 
+        let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,b.province,b.city,b.name as responsible_branch FROM counter_request ca,counter_branch b
                         WHERE
-                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
-                        ca.\`status\` NOT IN(0,-1,1,-2,19)
-                        GROUP BY ca.branch_id`;
+                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                        ca.status NOT IN(0,-1,-2,19) AND ca.branch_id = b.id
+                        GROUP BY ca.branch_id ORDER BY value desc`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(store, function (error, results, fields) {
                 if (error) reject(error);
@@ -574,7 +574,6 @@ GROUP BY
 
 
         let sql2=`SELECT
-	a.branch_city AS name,
 	sum(a.total_amount) AS totalAmount,
 	count(a.application_no) AS orderNumber,
 	CONCAT(
@@ -583,21 +582,21 @@ GROUP BY
 				SELECT
 				count(c.application_no)
 				FROM
-					datacleansing_data_warehouse c WHERE c.status not in(0,-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
-AND ' ${request.payload.enddate} 23:59:59'
+					counter_request c WHERE c.status not in(0,-1,-2,19) AND c.created_date  BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
 			),
 			2
 		),
 		'%'
-	) AS percentage
+	) AS percentage,
+	b.city as name
 FROM
-	datacleansing_data_warehouse a
+	counter_request a,counter_branch b
 WHERE
  a.status not in(0,-1,-2,19) AND
-  a.created_date BETWEEN '${request.payload.startdate} '
-AND ' ${request.payload.enddate} 23:59:59'
+  a.created_date BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+AND a.branch_id = b.id
 GROUP BY
-	a.branch_city
+	b.city
 ORDER BY
  orderNumber desc`;
         parray.push(new Promise(function (resolve,reject) {
