@@ -121,7 +121,7 @@ module.exports.restricted = {
     handler: function (request, reply) {
         let array = [];
         let parray = [];
-        let all = `SELECT count(ca.application_no) value,SUM(ca.total_amount) total,ca.province FROM postlending_contract ca 
+        let all = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province FROM postlending_contract ca 
                     WHERE
                     DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                     GROUP BY ca.province`;
@@ -136,7 +136,7 @@ module.exports.restricted = {
             console.error(error);
         }));
         //门店查询
-        let store = `SELECT count(ca.application_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM postlending_contract ca 
+        let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,ca.province,ca.city,ca.responsible_branch FROM postlending_contract ca 
                         WHERE
                         DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
                         GROUP BY ca.branch_id`;
