@@ -5,10 +5,10 @@ var mysql = require('mysql');
 
 module.exports.management = function handleDisconnect() {
     var connection = mysql.createConnection({
-        host: 'rm-2ze0v70uggy83t5ago.mysql.rds.aliyuncs.com',
+        host: 'rm-2zehe086blavu68a2o.mysql.rds.aliyuncs.com',
         user: 'lib',
         password: 'lib88888',
-        database: 'test'
+        database: 'instanment'
     }); // Recreate the connection, since
                                                     // the old one cannot be reused.
 
@@ -33,10 +33,10 @@ module.exports.management = function handleDisconnect() {
 //老平台数据源
 module.exports.vkits = function handleDisconnect1() {
     var oldConnection = mysql.createConnection({
-        host: 'rm-2ze0v70uggy83t5ago.mysql.rds.aliyuncs.com',
+        host: 'rm-2zehe086blavu68a2o.mysql.rds.aliyuncs.com',
         user: 'lib',
         password: 'lib88888',
-        database: 'test'
+        database: 'lib'
     }); // Recreate the connection, since
     // the old one cannot be reused.
 
@@ -60,10 +60,10 @@ module.exports.vkits = function handleDisconnect1() {
 
 module.exports.guozheng = function connectguozheng() {
     var oldConnection = mysql.createConnection({
-        host:'rm-2ze92s92qz4d0jr18.mysql.rds.aliyuncs.com',
+        host:'rm-2zehe086blavu68a2o.mysql.rds.aliyuncs.com',
         user:'lib',
         password:'lib88888',
-        database:'counter'
+        database:'instanment'
     });
 
     oldConnection.connect(function (err) {
@@ -87,4 +87,4 @@ module.exports.guozheng = function connectguozheng() {
  * 快速配置APP版本在这里~
  * @type {string}
  */
-module.exports.APPVERSION = 101;
+module.exports.APPVERSION = 102;

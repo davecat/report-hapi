@@ -378,7 +378,7 @@ module.exports.getMap = {
                     WHERE
                     DATE(ca.apply_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
                     ca.status NOT IN(0,-1,-2,19) AND ca.branch_id = b.id
-                    GROUP BY b.province ORDER BY value desc;`;
+                    GROUP BY b.province ORDER BY value desc`;
         parray.push(new Promise(function (resolve, reject) {
             mysql.management.query(all, function (error, results, fields) {
                 if (error) reject(error);
@@ -392,7 +392,7 @@ module.exports.getMap = {
         //门店查询
         let store = `SELECT count(ca.contract_no) value,SUM(ca.total_amount) total,b.province,b.city,b.name as responsible_branch FROM counter_request ca,counter_branch b
                         WHERE
-                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+                        DATE(ca.created_date) BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}' AND
                         ca.status NOT IN(0,-1,-2,19) AND ca.branch_id = b.id
                         GROUP BY ca.branch_id ORDER BY value desc`;
         parray.push(new Promise(function (resolve, reject) {
@@ -605,6 +605,7 @@ ORDER BY
                 resolve(results);
             });
         }).then(function (results) {
+            console.log(results);
             object.orderbycity=results;
         }).catch(function (error) {
             console.log(error)
