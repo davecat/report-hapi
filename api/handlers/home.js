@@ -605,6 +605,19 @@ ORDER BY
                 resolve(results);
             });
         }).then(function (results) {
+            citys.forEach(function (obj) {
+                if(obj.children) {
+                    obj.children.forEach(function (city) {
+                        if(results.length !== 0) {
+                            results.forEach(function (item) {
+                                if(item.name === city.value) {
+                                    item.name = city.label
+                                }
+                            })
+                        }
+                    })
+                }
+            });
             object.orderbycity=results;
         }).catch(function (error) {
             console.log(error)
