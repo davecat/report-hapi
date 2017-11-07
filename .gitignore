@@ -4,3 +4,5 @@ node_modules
 .vscode
 typings
 .idea
+
+api/handlers/mysql.js
