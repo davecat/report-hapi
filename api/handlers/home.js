@@ -582,7 +582,7 @@ GROUP BY
 				SELECT
 				count(c.application_no)
 				FROM
-					counter_request c WHERE c.status not in(0,-1,-2,19) AND c.created_date  BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+					counter_request c WHERE c.status not in(0,-1,-2,19) AND c.created_date  BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 			),
 			2
 		),
@@ -593,7 +593,7 @@ FROM
 	counter_request a,counter_branch b
 WHERE
  a.status not in(0,-1,-2,19) AND
-  a.created_date BETWEEN '${request.payload.startDay}' AND '${request.payload.endDay}'
+  a.created_date BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 AND a.branch_id = b.id
 GROUP BY
 	b.city
@@ -605,7 +605,6 @@ ORDER BY
                 resolve(results);
             });
         }).then(function (results) {
-            console.log(results);
             object.orderbycity=results;
         }).catch(function (error) {
             console.log(error)
