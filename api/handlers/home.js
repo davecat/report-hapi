@@ -482,8 +482,9 @@ module.exports.getTotalAmountByDate = {
         let sql;
         let datasub=dateFns.differenceInDays(request.payload.enddate,request.payload.startdate);
         if(datasub <= 31){
-             sql = `SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber,DATE_FORMAT(created_date,'%Y-%m-%d') as startDate from datacleansing_data_warehouse
-             where  status not in(0,-1,-2,19) AND  created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59' GROUP BY DATE_FORMAT(created_date,'%Y-%m-%d') 
+             sql = `SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber,DATE_FORMAT(created_date,'%Y-%m-%d') as startDate from counter_request
+             where  status not in(0,-1,-2,19) AND  DATE(created_date) BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate}'  GROUP BY DATE_FORMAT(created_date,'%Y-%m-%d') 
              ORDER BY  DATE_FORMAT(created_date,'%Y-%m-%d')`;
 
              object.flag='days';
@@ -524,10 +525,10 @@ module.exports.getTotalAmountByDate = {
 		INTERVAL 6 DAY
 	) AS  endDate
 FROM
-	datacleansing_data_warehouse
+	counter_request
 WHERE  status not in(0,-1,-2,19) AND
-	created_date BETWEEN '${request.payload.startdate}'
-AND ' ${request.payload.enddate} 23:59:59'
+	DATE(created_date) BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate}'
 GROUP BY
 	DATE_FORMAT(created_date, '%Y%u') ORDER BY DATE_FORMAT(created_date, '%Y%u')`;
             object.flag='weeks';
@@ -537,10 +538,10 @@ GROUP BY
 	count(application_no) as orderNumber,
 	CONCAT(DATE_FORMAT(created_date, '%Y-%m'),'-','01') AS startDate
 FROM
-	datacleansing_data_warehouse
+	counter_request
 WHERE status not in(0,-1,-2,19) AND
-	created_date BETWEEN '${request.payload.startdate} '
-AND ' ${request.payload.enddate} 23:59:59'
+	DATE(created_date) BETWEEN '${request.payload.startdate} '
+AND ' ${request.payload.enddate}'
 GROUP BY
 	DATE_FORMAT(created_date, '%Y%M') ORDER BY DATE_FORMAT(created_date, '%Y-%m')`;
             object.flag = 'months';
@@ -558,8 +559,8 @@ GROUP BY
         }));
 
 
-        let sql1=`SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber FROM datacleansing_data_warehouse WHERE
-	status not in(0,-1,-2,19) AND created_date BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate} 23:59:59'`;
+        let sql1=`SELECT sum(total_amount) as totalAmount,count(application_no) as orderNumber FROM counter_request WHERE
+	status not in(0,-1,-2,19) AND DATE(created_date) BETWEEN '${request.payload.startdate} ' AND ' ${request.payload.enddate}'`;
 
         parray.push(new Promise(function (resolve,reject) {
             mysql.guozheng.query(sql1, function (error, results, fields) {
@@ -582,7 +583,7 @@ GROUP BY
 				SELECT
 				count(c.application_no)
 				FROM
-					counter_request c WHERE c.status not in(0,-1,-2,19) AND c.created_date  BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
+					counter_request c WHERE c.status not in(0,-1,-2,19) AND DATE(c.created_date)  BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 			),
 			2
 		),
@@ -593,7 +594,7 @@ FROM
 	counter_request a,counter_branch b
 WHERE
  a.status not in(0,-1,-2,19) AND
-  a.created_date BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
+  DATE(a.created_date) BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 AND a.branch_id = b.id
 GROUP BY
 	b.city
@@ -624,7 +625,7 @@ ORDER BY
         }));
 
         let sql3=`SELECT
-	a.branch_name AS name,
+		a.responsible_branch AS name,
 	sum(a.total_amount) AS totalAmount,
 	count(a.application_no) AS orderNumber,
 	CONCAT(
@@ -633,21 +634,19 @@ ORDER BY
 				SELECT
 				count(c.application_no)
 				FROM
-					datacleansing_data_warehouse c WHERE a.status not in(0,-1,-2,19) AND c.created_date BETWEEN '${request.payload.startdate} '
-AND ' ${request.payload.enddate} 23:59:59'
+					counter_request c WHERE c.status not in(0,-1,-2,19) AND DATE(c.created_date) BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 			),
 			2
 		),
 		'%'
 	) AS percentage
 FROM
-	datacleansing_data_warehouse a
+	counter_request a
 WHERE
     a.status not in(0,-1,-2,19) AND
-  a.created_date BETWEEN '${request.payload.startdate} '
-AND ' ${request.payload.enddate} 23:59:59'
+  DATE(a.created_date) BETWEEN '${request.payload.startdate}' AND '${request.payload.enddate}'
 GROUP BY
-	a.branch_name
+	a.responsible_branch
 ORDER BY
  orderNumber desc`;
         parray.push(new Promise(function (resolve,reject) {
