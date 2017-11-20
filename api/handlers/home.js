@@ -263,7 +263,7 @@ module.exports.getLine = {
             // var typea = results[0].type;
             var typea = 1;
             if (typea === 1) {
-                let array = [];
+                let array = {all:[],accep: [],notaccep: []};
                 let parray = [];
                 let all = `SELECT count(rla.id) amount ,rla.\`status\`,DATE(rla.apply_date) date FROM counter_request rla
                             WHERE
@@ -292,7 +292,7 @@ module.exports.getLine = {
                         }
                         weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
                     }
-                    array.push(myArray);
+                    array.all = myArray;
                 }).catch(function (error) {
                     console.error(error);
                 }));
@@ -324,7 +324,7 @@ module.exports.getLine = {
                         }
                         weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
                     }
-                    array.push(myArray);
+                    array.accep = myArray;
                 }).catch(function (error) {
                     console.error(error);
                 }));
@@ -356,7 +356,7 @@ module.exports.getLine = {
                         }
                         weekStart1 = dateFns.format(dateFns.addDays(weekStart1,1),'YYYY-MM-DD');
                     }
-                    array.push(myArray);
+                    array.notaccep = myArray;
                 }).catch(function (error) {
                     console.error(error);
                 }));
