@@ -372,7 +372,7 @@ module.exports.getLine = {
 //map
 module.exports.getMap = {
     handler: function (request, reply) {
-        let array = [];
+        let array = {area: [], branch: []};
         let parray = [];
         let all = `SELECT count(ca.application_no) value,SUM(ca.total_amount) total,b.province FROM counter_request ca,counter_branch b 
                     WHERE
@@ -385,7 +385,7 @@ module.exports.getMap = {
                 resolve(results);
             });
         }).then(function (results) {
-            array.push(results);
+            array.area = results;
         }).catch(function (error) {
             console.error(error);
         }));
@@ -401,7 +401,7 @@ module.exports.getMap = {
                 resolve(results);
             });
         }).then(function (results) {
-            array.push(results);
+            array.branch = results;
         }).catch(function (error) {
             console.error(error);
         }));
